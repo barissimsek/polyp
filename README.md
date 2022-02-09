@@ -1,2 +1,2 @@
 # polyp
-A Simple TCP Proxy Server
+A Simple TCP Proxy
