@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 )
 
 func main() {
@@ -14,8 +15,20 @@ func main() {
 
 	flag.Parse()
 
-	fmt.Println("Port:", listenPort)
-	fmt.Println("Config:", configFile)
+	ln, err := net.Listen("tcp", ":"+fmt.Sprint(listenPort))
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for {
+		conn, err := ln.Accept()
+
+		if err != nil {
+			fmt.Println(err)
+		}
+		go handleConnection(conn)
+	}
 
 	c := Parse(configFile)
 
