@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"os"
 )
 
 func main() {
@@ -11,7 +12,7 @@ func main() {
 	var listenPort int
 
 	flag.StringVar(&configFile, "config", "config.json", "configureation file")
-	flag.IntVar(&listenPort, "port", 25, "port number")
+	flag.IntVar(&listenPort, "port", 80, "port number")
 
 	flag.Parse()
 
@@ -21,16 +22,22 @@ func main() {
 		fmt.Println(err)
 	}
 
+	fmt.Printf("[%d] Poly is started.\n", os.Getpid())
+	fmt.Printf("Listening port %d for incoming requests...\n", listenPort)
+
+	c := Parse(configFile)
+
 	for {
 		conn, err := ln.Accept()
 
 		if err != nil {
 			fmt.Println(err)
 		}
-		go handleConnection(conn)
-	}
 
-	c := Parse(configFile)
+		fmt.Printf("New request from %s...\n", conn.RemoteAddr().String())
+
+		go handleConnection(conn, c)
+	}
 
 	fmt.Println(c)
 }
