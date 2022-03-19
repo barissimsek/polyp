@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+var c Config
+
 func main() {
 	var configFile string
 	var listenPort int
@@ -25,7 +27,9 @@ func main() {
 	fmt.Printf("[%d] Poly is started.\n", os.Getpid())
 	fmt.Printf("Listening port %d for incoming requests...\n", listenPort)
 
-	c := Parse(configFile)
+	c = Parse(configFile)
+
+	fmt.Println(c)
 
 	for {
 		conn, err := ln.Accept()
@@ -36,8 +40,6 @@ func main() {
 
 		fmt.Printf("New request from %s...\n", conn.RemoteAddr().String())
 
-		go handleConnection(conn, c)
+		go handleConnection(conn)
 	}
-
-	fmt.Println(c)
 }
