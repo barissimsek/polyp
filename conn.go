@@ -6,8 +6,18 @@ import (
 )
 
 func getTarget(t []Target) string {
-	// TODO: Implement LRU loadbalancer
-	return t[0].Ip + ":" + t[0].Port
+	if c.LoadBalancer == "rr" {
+		return roundRobin(t)
+	} else if c.LoadBalancer == "lc" {
+		return t[0].Ip + ":" + t[0].Port
+	} else if c.LoadBalancer == "iphash" {
+		return t[0].Ip + ":" + t[0].Port
+	} else if c.LoadBalancer == "random" {
+		return t[0].Ip + ":" + t[0].Port
+	}
+
+	// Default algorithm
+	return roundRobin(t)
 }
 
 func clientRead(client net.Conn, server net.Conn) {

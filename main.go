@@ -8,6 +8,7 @@ import (
 )
 
 var c Config
+var tix int = 0
 
 func main() {
 	var configFile string
