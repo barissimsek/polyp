@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	Target      []Target `json:"targets"`
-	MaxRequest  int      `json:"maxRequest"`
-	MaxResponse int      `json:"maxResponse"`
+	Target       []Target `json:"targets"`
+	LoadBalancer string   `json: "loadBalancer"`
+	MaxRequest   int      `json:"maxRequest"`
+	MaxResponse  int      `json:"maxResponse"`
 }
 
 type Target struct {
