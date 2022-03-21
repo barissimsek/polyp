@@ -5,13 +5,17 @@ import (
 	"net"
 )
 
-func getTarget(t []Target) string {
+func getTarget(t []Target, client net.Conn) string {
 	if c.LoadBalancer == "rr" {
 		return roundRobin(t)
 	} else if c.LoadBalancer == "lc" {
 		return t[0].Ip + ":" + t[0].Port
 	} else if c.LoadBalancer == "iphash" {
-		return t[0].Ip + ":" + t[0].Port
+		ip, _, err := net.SplitHostPort(client.RemoteAddr().String())
+		if err != nil {
+			fmt.Println("Client ip format error", client.RemoteAddr().String())
+		}
+		return ipHash(t, ip)
 	} else if c.LoadBalancer == "random" {
 		return t[0].Ip + ":" + t[0].Port
 	}
@@ -57,7 +61,9 @@ func serverRead(server net.Conn, client net.Conn) {
 }
 
 func handleConnection(client net.Conn) {
-	target := getTarget(c.Target)
+	target := getTarget(c.Target, client)
+
+	fmt.Println("Chosen target: ", target)
 
 	server, err := net.Dial("tcp", target)
 

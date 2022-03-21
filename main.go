@@ -9,6 +9,7 @@ import (
 
 var c Config
 var tix int = 0
+var ipMap = make(map[[16]byte]string, c.HashTableSize)
 
 func main() {
 	var configFile string
