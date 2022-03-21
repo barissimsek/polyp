@@ -9,7 +9,7 @@ func getTarget(t []Target, client net.Conn) string {
 	if c.LoadBalancer == "rr" {
 		return roundRobin(t)
 	} else if c.LoadBalancer == "lc" {
-		return t[0].Ip + ":" + t[0].Port
+		return roundRobin(t)
 	} else if c.LoadBalancer == "iphash" {
 		ip, _, err := net.SplitHostPort(client.RemoteAddr().String())
 		if err != nil {
@@ -17,7 +17,7 @@ func getTarget(t []Target, client net.Conn) string {
 		}
 		return ipHash(t, ip)
 	} else if c.LoadBalancer == "random" {
-		return t[0].Ip + ":" + t[0].Port
+		return roundRobin(t)
 	}
 
 	// Default algorithm
