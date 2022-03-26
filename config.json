@@ -11,6 +11,9 @@
   ],
   "loadBalancer": "iphash",
   "hashTableSize": 1024,
-  "maxRequest": 2097152,
-  "maxResponse": 2097152
+  "processor": {
+    "protocol": "http",
+    "maxRequest": 2097152,
+    "maxResponse": 2097152  
+  }
 }

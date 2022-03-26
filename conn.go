@@ -24,26 +24,8 @@ func getTarget(t []Target, client net.Conn) string {
 	return roundRobin(t)
 }
 
-func clientRead(client net.Conn, server net.Conn) {
-	buf := make([]byte, c.MaxRequest)
-
-	for {
-		n, err := client.Read(buf[0:])
-		if err != nil {
-			return
-		}
-		fmt.Println("C: " + string(buf[0:]))
-
-		_, err2 := server.Write(buf[0:n])
-
-		if err2 != nil {
-			return
-		}
-	}
-}
-
 func serverRead(server net.Conn, client net.Conn) {
-	buf := make([]byte, c.MaxResponse)
+	buf := make([]byte, c.Processor.MaxResponse)
 
 	for {
 		n, err := server.Read(buf[0:])

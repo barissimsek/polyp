@@ -8,16 +8,21 @@ import (
 )
 
 type Config struct {
-	Target        []Target `json:"targets"`
-	LoadBalancer  string   `json:"loadBalancer"`
-	HashTableSize int      `json:"hashTableSize"`
-	MaxRequest    int      `json:"maxRequest"`
-	MaxResponse   int      `json:"maxResponse"`
+	Target        []Target  `json:"targets"`
+	LoadBalancer  string    `json:"loadBalancer"`
+	HashTableSize int       `json:"hashTableSize"`
+	Processor     Processor `json:"processor"`
 }
 
 type Target struct {
 	Ip   string `json:"ip"`
 	Port string `json:"port"`
+}
+
+type Processor struct {
+	Protocol    string `json:"protocol"`
+	MaxRequest  int    `json:"maxRequest"`
+	MaxResponse int    `json:"maxResponse"`
 }
 
 func Parse(configFile string) Config {
