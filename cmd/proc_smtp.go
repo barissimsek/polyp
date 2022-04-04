@@ -4,5 +4,4 @@ func proc_smtp(payload string, ret chan int) {
 	// TBD
 	ret <- 0
 
-	return
 }
