@@ -181,15 +181,19 @@ func TestRoundRobin(t *testing.T) {
 	}
 }
 
-func TestRoundRobinWrapsAt255(t *testing.T) {
-	targets := []Target{{Ip: "10.0.0.1", Port: "80"}}
-	tix = 255
-	got := roundRobin(targets)
-	if got != "10.0.0.1:80" {
-		t.Errorf("got %q", got)
+func TestRoundRobinWrapsAround(t *testing.T) {
+	targets := []Target{
+		{Ip: "10.0.0.1", Port: "80"},
+		{Ip: "10.0.0.2", Port: "80"},
 	}
-	if tix != 1 {
-		t.Errorf("tix should be 1 after wrap, got %d", tix)
+	tix = 0
+	// Drive past len(targets) to confirm wrap-around produces correct sequence.
+	want := []string{"10.0.0.1:80", "10.0.0.2:80", "10.0.0.1:80", "10.0.0.2:80"}
+	for i, w := range want {
+		got := roundRobin(targets)
+		if got != w {
+			t.Errorf("call %d: got %q, want %q", i, got, w)
+		}
 	}
 }
 

@@ -1,16 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
-
-	"encoding/json"
 )
 
 type Config struct {
-	Target        []Target  `json:"targets"`
-	LoadBalancer  string    `json:"loadBalancer,omitempty"`
-	HashTableSize int       `json:"hashTableSize,omitempty"`
+	Target        []Target   `json:"targets"`
+	LoadBalancer  string     `json:"loadBalancer,omitempty"`
+	HashTableSize int        `json:"hashTableSize,omitempty"`
 	Processor     *Processor `json:"processor,omitempty"`
 }
 
@@ -28,12 +27,15 @@ type Processor struct {
 func Parse(configFile string) Config {
 	var c Config
 
-	byteData, _ := os.ReadFile(configFile)
-
-	err := json.Unmarshal(byteData, &c)
-
+	byteData, err := os.ReadFile(configFile)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error reading config:", err)
+		os.Exit(1)
+	}
+
+	if err := json.Unmarshal(byteData, &c); err != nil {
+		fmt.Println("Error parsing config:", err)
+		os.Exit(1)
 	}
 
 	return c

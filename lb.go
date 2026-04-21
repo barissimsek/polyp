@@ -2,38 +2,38 @@ package main
 
 import (
 	"crypto/md5"
+	"sync"
 )
 
+var lbMu sync.Mutex
+
 func roundRobin(t []Target) string {
-
-	if tix == 255 || tix == len(t) {
-		tix = 0
-	}
-
-	targetString := t[tix].Ip + ":" + t[tix].Port
-
-	tix = tix + 1
-
-	return targetString
+	lbMu.Lock()
+	defer lbMu.Unlock()
+	s := t[tix%len(t)].Ip + ":" + t[tix%len(t)].Port
+	tix = (tix + 1) % len(t)
+	return s
 }
 
 func ipHash(t []Target, ip string) string {
 	hash := md5.Sum([]byte(ip))
 
-	// Cache hit
+	lbMu.Lock()
+	defer lbMu.Unlock()
+
 	if val, ok := ipMap[hash]; ok {
 		return val
-	} else { // cache miss
-		if len(ipMap) == c.HashTableSize { // cache full, evict
-			for k, _ := range ipMap {
-				delete(ipMap, k)
-				break
-			}
+	}
+
+	if c.HashTableSize > 0 && len(ipMap) >= c.HashTableSize {
+		for k := range ipMap {
+			delete(ipMap, k)
+			break
 		}
 	}
 
-	// Add missed hash key
-	ipMap[hash] = roundRobin(t)
-
-	return ipMap[hash]
+	target := t[tix%len(t)].Ip + ":" + t[tix%len(t)].Port
+	tix = (tix + 1) % len(t)
+	ipMap[hash] = target
+	return target
 }
