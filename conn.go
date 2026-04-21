@@ -25,6 +25,18 @@ func getTarget(t []Target, client net.Conn) string {
 	return roundRobin(t)
 }
 
+func inspect(payload []byte) {
+	if c.Processor == nil {
+		return
+	}
+	switch c.Processor.Protocol {
+	case "http":
+		proc_http(payload)
+	case "smtp":
+		proc_smtp(payload)
+	}
+}
+
 func handleConnection(client net.Conn) {
 	defer client.Close()
 
@@ -37,6 +49,20 @@ func handleConnection(client net.Conn) {
 		return
 	}
 	defer server.Close()
+
+	if c.Processor != nil {
+		buf := make([]byte, c.Processor.MaxRequest)
+		n, err := client.Read(buf)
+		if n > 0 {
+			inspect(buf[:n])
+			if _, werr := server.Write(buf[:n]); werr != nil {
+				return
+			}
+		}
+		if err != nil {
+			return
+		}
+	}
 
 	done := make(chan struct{}, 2)
 	go func() {
