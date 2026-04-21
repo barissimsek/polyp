@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 )
 
@@ -24,38 +25,34 @@ func getTarget(t []Target, client net.Conn) string {
 	return roundRobin(t)
 }
 
-func serverRead(server net.Conn, client net.Conn) {
-	buf := make([]byte, c.Processor.MaxResponse)
-
-	for {
-		n, err := server.Read(buf[0:])
-		if err != nil {
-			return
-		}
-		fmt.Println("S: ", string(buf[0:]))
-
-		_, err2 := client.Write(buf[0:n])
-
-		if err2 != nil {
-			return
-		}
-	}
-}
-
 func handleConnection(client net.Conn) {
-	target := getTarget(c.Target, client)
+	defer client.Close()
 
+	target := getTarget(c.Target, client)
 	fmt.Println("Chosen target: ", target)
 
 	server, err := net.Dial("tcp", target)
-
 	if err != nil {
-		fmt.Println("Can't establish relay connections")
-		fmt.Println(err)
+		fmt.Println("Can't establish relay connection:", err)
 		return
 	}
+	defer server.Close()
 
-	go clientRead(client, server)
-	go serverRead(server, client)
-
+	done := make(chan struct{}, 2)
+	go func() {
+		io.Copy(server, client)
+		if tc, ok := server.(*net.TCPConn); ok {
+			tc.CloseWrite()
+		}
+		done <- struct{}{}
+	}()
+	go func() {
+		io.Copy(client, server)
+		if tc, ok := client.(*net.TCPConn); ok {
+			tc.CloseWrite()
+		}
+		done <- struct{}{}
+	}()
+	<-done
+	<-done
 }

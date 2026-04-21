@@ -9,9 +9,9 @@ import (
 
 type Config struct {
 	Target        []Target  `json:"targets"`
-	LoadBalancer  string    `json:"loadBalancer"`
-	HashTableSize int       `json:"hashTableSize"`
-	Processor     Processor `json:"processor"`
+	LoadBalancer  string    `json:"loadBalancer,omitempty"`
+	HashTableSize int       `json:"hashTableSize,omitempty"`
+	Processor     *Processor `json:"processor,omitempty"`
 }
 
 type Target struct {
